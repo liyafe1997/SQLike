@@ -3,28 +3,58 @@ import os
 
 
 def Command(cmd):
-    c = cmd.split(" ")
-    if c[0] == "CREATE" and c[1] == "TABLE":
-        CreateTable(c[2], c[3][1:-1])
-    elif c[0] == "DROP" and c[1] == "TABLE":
-        DropTable(cmd.split(" ")[2])
-    elif c[0] == "INSERT" and c[1] == "INTO" and c[3] == "VALUES":
-        Insert(c[2], c[4])
-    elif c[0] == "SELECT" and c[2] == "FROM":
-        if (len(c) > 5):
-            Select(c[3], c[1], c[5])
-        else:
-            Select(c[3], c[1], 0)
-    elif c[0] == "DELETE" and c[1] == "FROM" and c[3] == "WHERE":
-        DeleteData(c[2], c[4])
-    elif c[0] == "UPDATE" and c[2] == "SET":
-        if (len(c) > 5):
-            UpdateData(c[1], c[3], c[5])
-        else:
-            UpdateData(c[1], c[3], 0)
+    try:
+        c = cmd.split(" ")
+        if c[0] == "CREATE" and c[1] == "TABLE":
+            if not len(c) == 4:
+                return -1
+            if not c[3][0] == "(":
+                return -1
+            if not c[3][-1] == ")":
+                return -1
+            CreateTable(c[2], c[3][1:-1])
+        elif c[0] == "DROP" and c[1] == "TABLE":
+            if not len(c) == 3:
+                return -1
+            DropTable(c[2])
+        elif c[0] == "INSERT" and c[1] == "INTO" and c[3] == "VALUES":
+            if not len(c) == 5:
+                return -1
+            if not c[4][0] == "(":
+                return -1
+            if not c[4][-1] == ")":
+                return -1
+            Insert(c[2], c[4])
+        elif c[0] == "SELECT" and c[2] == "FROM":
+            if len(c) == 6:
+                if not len(c[5].split("=")) == 2:
+                    return -1
+                Select(c[3], c[1], c[5])
+            elif len(c) == 4:
+                Select(c[3], c[1], 0)
+            else:
+                return -1
 
-    else:
-        print "Command Format Error!"
+        elif c[0] == "DELETE" and c[1] == "FROM" and c[3] == "WHERE":
+            if not len(c) == 5:
+                return -1
+            if not len(c[4].split("=")) == 2:
+                return -1
+            DeleteData(c[2], c[4])
+        elif c[0] == "UPDATE" and c[2] == "SET":
+            if not len(c[3].split("=")) == 2:
+                return -1
+            if len(c) == 6:
+                if not len(c[5].split("=")) == 2:
+                    return -1
+                UpdateData(c[1], c[3], c[5])
+            else:
+                UpdateData(c[1], c[3], 0)
+
+        else:
+            return -1
+    except:
+        return -1
 
 
 def UpdateData(tablename, set, where):
@@ -52,14 +82,17 @@ def UpdateData(tablename, set, where):
                     for j in range(len(EachData)):
                         newData += EachData[j] + ","
                     newData = newData[0:-1]
-                    UpdateLine("DB/" + tablename, i, newData)
+                    dbdata[i] = newData
+                    # UpdateLine("DB/" + tablename, i, newData)
             else:
                 EachData[VIndex] = SetValue
                 newData = ""
                 for j in range(len(EachData)):
                     newData += EachData[j] + ","
-                newData = newData[:-1]
-                UpdateLine("DB/" + tablename, i, newData)
+                newData = newData[0:-1]
+                dbdata[i] = newData
+                # UpdateLine("DB/" + tablename, i, newData)
+    WriteFileArray("DB/" + tablename, dbdata)
 
 
 def DeleteData(tablename, where):
@@ -75,31 +108,26 @@ def DeleteData(tablename, where):
         EachData = dbdata[i].split(",")
         if len(EachData) == len(dbdata[0].split(",")):
             if EachData[CIndex] == WhereValue:
-                DeleteLine("DB/" + tablename, i)
+                dbdata[i] = ""
+                # DeleteLine("DB/" + tablename, i)
+    DeleteEmptyLine("DB/" + tablename, dbdata)
 
 
-def UpdateLine(filename, line, content):
-    file_object = open(filename)
-    all_the_text = file_object.read()
-    file_object.close()
-    lines = all_the_text.split("\n", )
-    lines[line] = content
+def DeleteEmptyLine(filename, content):
     WriteFile(filename, "")
-    for i in range(len(lines)):
-        if lines[i] != "":
-            WriteFileLine(filename, unicode(lines[i]) + "\n")
-
-
-def DeleteLine(filename, line):
-    file_object = open(filename)
-    all_the_text = file_object.read()
+    file_object = codecs.open(filename, 'a', "utf-8")
+    for i in range(len(content)):
+        if content[i] != "":
+            file_object.write(unicode(content[i]) + "\n")
     file_object.close()
-    lines = all_the_text.split("\n", )
-    lines[line] = ""
+
+
+def WriteFileArray(filename, content):
     WriteFile(filename, "")
-    for i in range(len(lines)):
-        if lines[i] != "":
-            WriteFileLine(filename, unicode(lines[i]) + "\n")
+    file_object = codecs.open(filename, 'a', "utf-8")
+    for i in range(len(content)):
+        file_object.write(unicode(content[i]) + "\n")
+    file_object.close()
 
 
 def CreateTable(name, colunm):
@@ -144,7 +172,7 @@ def Select(tablename, selectcolumn, where):
         for i in range(len(Columns)):
             ReturnDatas += Columns[i] + " "
     ReturnDatas += "\n"
-    for i in range(len(AllData)):
+    for i in range(1, len(AllData)):
         if selectcolumn == "*":
             if where == 0:
                 ReturnDatas += AllData[i].replace(",", " ") + "\n"
@@ -230,14 +258,49 @@ def WriteFileLine(filename, content):
 
 
 if __name__ == '__main__':
-    print "Welcome To SQLike 0.0001 Alpha Command Tool"
-    print "Enter quit Or exit To Exit This Program"
+    print "Welcome To SQLike 0.0002 Alpha Command Tool"
+    print "Enter \"QUIT\" or \"EXIT\" To Exit This Program"
+    print "Enter \"HELP\" to show help"
     while 1:
         cmd = raw_input("SQLike>>> ")
         cmd = str(cmd)
-        if cmd == "quit" or cmd == "exit":
+        if cmd.lower() == "quit" or cmd.lower() == "exit":
             exit(0)
-        elif cmd  == "":
-			pass
+        elif cmd == "":
+            pass
+        elif cmd.lower() == "help":
+            print "Command Usage:"
+            print ""
+            print "Create table:"
+            print "CREATE TABLE _table_name (_column1,_column2,_column3....)"
+            print ""
+            print "Delete a table:"
+            print "DROP TABLE _table_name"
+            print ""
+            print "Insert a row:"
+            print "INSERT INTO _table_name VALUES (_data1,data2,_data3....)"
+            print ""
+            print "Update data without condition, means update all the data in the column:"
+            print "UPDATE _table_name SET _column=_data"
+            print ""
+            print "Update data with condition:"
+            print "UPDATE _table_name SET _column=_data WHERE _column=_data"
+            print ""
+            print "Delete a row:"
+            print "DELETE _table_name WHERE _column=_data"
+            print ""
+            print "Query all the data with all columns:"
+            print "SELECT * FROM _table_name"
+            print ""
+            print "Query some data with all columns with a special condition:"
+            print "SELECT * FROM _table_name WHERE _column=_data"
+            print ""
+            print "Query all the data only with special single column:"
+            print "SELECT _column=_data FROM _table_name"
+            print ""
+            print "Query some data only with special single column with a special condition:"
+            print "SELECT _column=_data FROM _table_name WHERE _column=_data"
         else:
-            Command(cmd)
+            err = Command(cmd)
+            if err == -1:
+                print("SQLike Command Format Error!")
