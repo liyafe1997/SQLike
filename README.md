@@ -47,16 +47,16 @@ DELETE _table_name WHERE _column=_data
 SELECT * FROM _table_name
 
 
-带条件检索所有列数据 (Query some data with all columns with a speical condition)：
+带条件检索所有列数据 (Query some data with all columns with a special condition)：
 
 SELECT * FROM _table_name WHERE _column=_data
 
 
-不带条件，只检索某列所有数据 (Query all the data only with speical single column)：
+不带条件，只检索某列所有数据 (Query all the data only with special single column)：
 
 SELECT _column=_data FROM _table_name
 
 
-带条件检索某列所有数据(Query some data only with speical single column with a speical condition)：
+带条件检索某列所有数据(Query some data only with special single column with a special condition)：
 
 SELECT _column=_data FROM _table_name WHERE _column=_data
