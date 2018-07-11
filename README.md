@@ -3,8 +3,11 @@
  
  一个用Python写的，基于平面文件的，命令有点仿SQL的“数据库”。
 
+
 TCP Socket Server Supported. It can excuses SQL command via client sending.
+
 支持开启TCP服务器，支持通过Socket发送SQL语句来执行。
+
 
 由来呢，数据库课的课程设计，整天莫非就是搞什么XX管理系统，整天拿SQL SELECT来SELECT去，没什么意思。（老师也觉得没什么意思
 
@@ -64,4 +67,5 @@ SELECT _column=_data FROM _table_name
 SELECT _column=_data FROM _table_name WHERE _column=_data
 
 开启TCP服务器(Start TCP Socket Server)
+
 server BindIP:PORT (Example: server 127.0.0.1:1234)
