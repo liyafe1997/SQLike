@@ -1,55 +1,60 @@
+#!/usr/bin/env python
 import codecs
 import os
+import socket
+import threading
+
+lock = threading.Lock()
 
 
 def Command(cmd):
     try:
         c = cmd.split(" ")
-        if c[0] == "CREATE" and c[1] == "TABLE":
+        if c[0].upper() == "CREATE" and c[1].upper() == "TABLE":
             if not len(c) == 4:
                 return -1
             if not c[3][0] == "(":
                 return -1
             if not c[3][-1] == ")":
                 return -1
-            CreateTable(c[2], c[3][1:-1])
-        elif c[0] == "DROP" and c[1] == "TABLE":
+            return CreateTable(c[2], c[3][1:-1])
+        elif c[0].upper() == "DROP" and c[1].upper() == "TABLE":
             if not len(c) == 3:
                 return -1
-            DropTable(c[2])
-        elif c[0] == "INSERT" and c[1] == "INTO" and c[3] == "VALUES":
+            return DropTable(c[2])
+        elif c[0].upper() == "INSERT" and c[1].upper() == "INTO" and c[3].upper() == "VALUES":
             if not len(c) == 5:
                 return -1
             if not c[4][0] == "(":
                 return -1
             if not c[4][-1] == ")":
                 return -1
-            Insert(c[2], c[4])
-        elif c[0] == "SELECT" and c[2] == "FROM":
+            return Insert(c[2], c[4])
+        elif c[0].upper() == "SELECT" and c[2].upper() == "FROM":
             if len(c) == 6:
                 if not len(c[5].split("=")) == 2:
                     return -1
-                Select(c[3], c[1], c[5])
+                return Select(c[3], c[1], c[5])
             elif len(c) == 4:
-                Select(c[3], c[1], 0)
+                return Select(c[3], c[1], 0)
             else:
                 return -1
 
-        elif c[0] == "DELETE" and c[1] == "FROM" and c[3] == "WHERE":
+        elif c[0].upper() == "DELETE" and c[1].upper() == "FROM" and c[3].upper() == "WHERE":
             if not len(c) == 5:
                 return -1
             if not len(c[4].split("=")) == 2:
                 return -1
-            DeleteData(c[2], c[4])
-        elif c[0] == "UPDATE" and c[2] == "SET":
+            return DeleteData(c[2], c[4])
+        elif c[0].upper() == "UPDATE" and c[2].upper() == "SET":
             if not len(c[3].split("=")) == 2:
                 return -1
             if len(c) == 6:
                 if not len(c[5].split("=")) == 2:
                     return -1
-                UpdateData(c[1], c[3], c[5])
+                return UpdateData(c[1], c[3], c[5])
             else:
-                UpdateData(c[1], c[3], 0)
+                return UpdateData(c[1], c[3], 0)
 
         else:
             return -1
@@ -58,14 +63,17 @@ def Command(cmd):
 
 
 def UpdateData(tablename, set, where):
-    dbdata = ReadFile("DB/" + tablename)
+    try:
+        dbdata = ReadFile("DB/" + tablename)
+    except:
+        return "Error: No this table!"
     dbdata = dbdata.split("\n")
     SetColumn = set.split("=")[0]
     SetValue = set.split("=")[1]
     VIndex = FindColumnIndex(SetColumn, dbdata[0].split(","))
     if VIndex == -1:
-        print("Error: In SET no this column!!")
-        return
+        return "Error: In SET no this column!!"
+    count = 0
     for i in range(1, len(dbdata)):
         EachData = dbdata[i].split(",")
         if len(EachData) == len(dbdata[0].split(",")):
@@ -74,9 +82,10 @@ def UpdateData(tablename, set, where):
                 WhereValue = where.split("=")[1]
                 CIndex = FindColumnIndex(WhereColumn, dbdata[0].split(","))
                 if CIndex == -1:
-                    print("Error: In WHERE no this column!!")
-                    return
+                    return "Error: In WHERE no this column!!"
+
                 if EachData[CIndex] == WhereValue:
+                    count += 1
                     EachData[VIndex] = SetValue
                     newData = ""
                     for j in range(len(EachData)):
@@ -86,6 +95,7 @@ def UpdateData(tablename, set, where):
                     # UpdateLine("DB/" + tablename, i, newData)
             else:
                 EachData[VIndex] = SetValue
+                count += 1
                 newData = ""
                 for j in range(len(EachData)):
                     newData += EachData[j] + ","
@@ -93,24 +103,31 @@ def UpdateData(tablename, set, where):
                 dbdata[i] = newData
                 # UpdateLine("DB/" + tablename, i, newData)
     WriteFileArray("DB/" + tablename, dbdata)
+    return str(count) + " Row(s) Updated"
 
 
 def DeleteData(tablename, where):
-    dbdata = ReadFile("DB/" + tablename)
+    try:
+        dbdata = ReadFile("DB/" + tablename)
+    except:
+        return "Error: No this table!"
     dbdata = dbdata.split("\n")
     WhereColumn = where.split("=")[0]
     WhereValue = where.split("=")[1]
     CIndex = FindColumnIndex(WhereColumn, dbdata[0].split(","))
     if CIndex == -1:
-        print("Error: In WHERE no this column!!")
-        return
+        return "Error: In WHERE no this column!!"
+    count = 0
     for i in range(len(dbdata)):
         EachData = dbdata[i].split(",")
         if len(EachData) == len(dbdata[0].split(",")):
             if EachData[CIndex] == WhereValue:
+                count += 1
                 dbdata[i] = ""
                 # DeleteLine("DB/" + tablename, i)
     DeleteEmptyLine("DB/" + tablename, dbdata)
+    return "Deleted " + str(count) + " Row(s)"
+
 
 
 def DeleteEmptyLine(filename, content):
@@ -132,36 +149,43 @@ def WriteFileArray(filename, content):
 
 def CreateTable(name, colunm):
     if os.path.exists("DB/" + name):
-        print "Error: Table already existed!"
-        return
+        return "Error: Table already existed!"
+
     else:
         WriteFileLine("DB/" + name, colunm + "\n")
-    print "Table " + name + " Created!"
+    return "Table " + name + " Created!"
 
 
 def DropTable(name):
     if not os.path.exists("DB/" + name):
-        print "Error: Table not existed!"
-        return
+        return "Error: Table not existed!"
+
     else:
         os.remove("DB/" + name)
-        print ("Table " + name + " Droped!")
+        return "Table " + name + " Droped!"
 
 
 def Insert(tablename, data):
-    dbdata = ReadFile("DB/" + tablename)
+    try:
+        dbdata = ReadFile("DB/" + tablename)
+    except:
+        return "Error: No this table!"
     dbdata = dbdata.split("\n")
     colunms = dbdata[0].split(",")
     incomingdata = data.split(",")
     if len(incomingdata) != len(colunms):
-        print "Error: Length of your input VALUES and table colunms not match!"
-        return
+        return "Error: Length of your input VALUES and table colunms not match!"
+
     else:
         WriteFileLine("DB/" + tablename, data[1:-1] + "\n")
+        return "A row Inserted"
 
 
 def Select(tablename, selectcolumn, where):
-    AllData = ReadFile("DB/" + tablename).split("\n")
+    try:
+        AllData = ReadFile("DB/" + tablename).split("\n")
+    except:
+        return "Error: No this table!"
     Columns = AllData[0].split(",")
     ReturnDatas = ""
     if not selectcolumn[0] == "*":
@@ -181,8 +205,8 @@ def Select(tablename, selectcolumn, where):
                 WhereValue = where.split("=")[1]
                 CIndex = FindColumnIndex(WhereColumn, Columns)
                 if CIndex == -1:
-                    print("Error: In WHERE no this column!!")
-                    return
+                    return "Error: In WHERE no this column!!"
+
                 EachData = AllData[i].split(",")
                 if len(EachData) == len(AllData[0].split(",")):
                     if EachData[CIndex] == WhereValue:
@@ -199,8 +223,8 @@ def Select(tablename, selectcolumn, where):
                 WhereValue = where.split("=")[1]
                 CIndex = FindColumnIndex(WhereColumn, Columns)
                 if CIndex == -1:
-                    print("Error: In WHERE no this column!!")
-                    return
+                    return "Error: In WHERE no this column!!"
+
                 EachData = AllData[i].split(",")
                 if len(EachData) == len(AllData[0].split(",")):
                     if EachData[CIndex] == WhereValue:
@@ -208,7 +232,7 @@ def Select(tablename, selectcolumn, where):
                             if Columns[j] in selectcolumn:
                                 ReturnDatas += SingleLineData[j] + " "
                         ReturnDatas += "\n"
-    print ReturnDatas
+    return ReturnDatas
 
 
 def FindColumnIndex(column, columns):
@@ -257,8 +281,43 @@ def WriteFileLine(filename, content):
     file_object.close()
 
 
+def StartSocketServer(IP, port):
+    server = socket.socket()
+    ip_port = (IP, port)
+    server.bind(ip_port)
+    server.listen(5)
+    sthread = threading.Thread(target=SocketBind, args=(server,))
+    sthread.setDaemon(True)
+    sthread.start()
+    print "Bind at " + IP + ":" + str(port)
+
+
+def SocketBind(ss):
+    while True:
+        conn, addr = ss.accept()
+        latestconn = conn
+        recvsthread = threading.Thread(target=SocketReceiving, args=(conn,))
+        recvsthread.setDaemon(True)
+        recvsthread.start()
+
+
+def SocketReceiving(incomingconn):
+    try:
+        while True:
+            data = incomingconn.recv(1024)
+            if lock.acquire():
+                result = Command(str(data))
+                lock.release()
+            if result == -1:
+                incomingconn.send("SQLike Command Format Error!")
+            else:
+                incomingconn.send(str(result))
+    except:
+        pass
+
+
 if __name__ == '__main__':
-    print "Welcome To SQLike 0.0002 Alpha Command Tool"
+    print "Welcome To SQLike 0.0003 Alpha"
     print "Enter \"QUIT\" or \"EXIT\" To Exit This Program"
     print "Enter \"HELP\" to show help"
     while 1:
@@ -271,36 +330,55 @@ if __name__ == '__main__':
         elif cmd.lower() == "help":
             print "Command Usage:"
             print ""
-            print "Create table:"
-            print "CREATE TABLE _table_name (_column1,_column2,_column3....)"
+            print "1 Create table:"
+            print "  CREATE TABLE _table_name (_column1,_column2,_column3....)"
             print ""
-            print "Delete a table:"
-            print "DROP TABLE _table_name"
+            print "2 Delete a table:"
+            print "  DROP TABLE _table_name"
             print ""
-            print "Insert a row:"
-            print "INSERT INTO _table_name VALUES (_data1,data2,_data3....)"
+            print "3 Insert a row:"
+            print "  INSERT INTO _table_name VALUES (_data1,data2,_data3....)"
             print ""
-            print "Update data without condition, means update all the data in the column:"
-            print "UPDATE _table_name SET _column=_data"
+            print "4 Update data without condition, means update all the data in the column:"
+            print "  UPDATE _table_name SET _column=_data"
             print ""
-            print "Update data with condition:"
-            print "UPDATE _table_name SET _column=_data WHERE _column=_data"
+            print "5 Update data with condition:"
+            print "  UPDATE _table_name SET _column=_data WHERE _column=_data"
             print ""
-            print "Delete a row:"
-            print "DELETE _table_name WHERE _column=_data"
+            print "6 Delete a row:"
+            print "  DELETE _table_name WHERE _column=_data"
             print ""
-            print "Query all the data with all columns:"
-            print "SELECT * FROM _table_name"
+            print "7 Query all the data with all columns:"
+            print "  SELECT * FROM _table_name"
             print ""
-            print "Query some data with all columns with a special condition:"
-            print "SELECT * FROM _table_name WHERE _column=_data"
+            print "8 Query some data with all columns with a special condition:"
+            print "  SELECT * FROM _table_name WHERE _column=_data"
             print ""
-            print "Query all the data only with special single column:"
-            print "SELECT _column=_data FROM _table_name"
+            print "9 Query all the data only with special single column:"
+            print "  SELECT _column=_data FROM _table_name"
             print ""
-            print "Query some data only with special single column with a special condition:"
-            print "SELECT _column=_data FROM _table_name WHERE _column=_data"
-        else:
-            err = Command(cmd)
-            if err == -1:
+            print "10 Query some data only with special single column with a special condition:"
+            print "  SELECT _column=_data FROM _table_name WHERE _column=_data"
+            print ""
+            print "11 Start TCP Socket Server"
+            print "  server BindIP:PORT"
+            print "  Example: server 0.0.0.0:1666"
+            print ""
+        elif cmd.split(" ")[0].lower() == "server":
+            if len(cmd.split(" ")) == 2:
+                if len(cmd.split(" ")[1].split(":")) == 2:
+                    StartSocketServer(cmd.split(" ")[1].split(":")[0], int(cmd.split(" ")[1].split(":")[1]))
+                    print "TCP Socket Server Started !"
+                else:
+                    print("SQLike Command Format Error!")
+            else:
                 print("SQLike Command Format Error!")
+
+        else:
+            if lock.acquire():
+                cmdResult = Command(cmd)
+                if cmdResult == -1:
+                    print("SQLike Command Format Error!")
+                else:
+                    print cmdResult
+                lock.release()
