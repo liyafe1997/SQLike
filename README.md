@@ -3,6 +3,9 @@
  
  一个用Python写的，基于平面文件的，命令有点仿SQL的“数据库”。
 
+But it has a little differece with CSV, the first line is the colunm header, instead of data.
+
+与CSV有一点不同的事，第一行不是数据，而是列头。
 
 TCP Socket Server Supported. It can excuses SQL command via client sending.
 
