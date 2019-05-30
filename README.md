@@ -1,7 +1,7 @@
 # SQLike
- A simple "Database" based on flat files and commands like "SQL", written by Python.
+ A simple "Database" based on flat CSV files and commands like "SQL", written by Python.
  
- 一个用Python写的，基于平面文件的，命令有点仿SQL的“数据库”。
+ 一个用Python写的，基于平面文件（CSV）的，命令有点仿SQL的“数据库”。
 
 But it has a little differece with CSV, the first line is the colunm header, instead of data.
 
