@@ -47,7 +47,7 @@ UPDATE _table_name SET _column=_data WHERE _column=_data
 
 删数据 (Delete a row)：
 
-DELETE _table_name WHERE _column=_data
+DELETE FROM _table_name WHERE _column=_data
 
 
 检索所有列、所有数据 (Query all the data with all columns)：
