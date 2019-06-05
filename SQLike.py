@@ -64,7 +64,7 @@ def Command(cmd):
 
 def UpdateData(tablename, set, where):
     try:
-        dbdata = ReadFile("DB/" + tablename)
+        dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename)
     except:
         return "Error: No this table!"
     dbdata = dbdata.split("\n")
@@ -93,7 +93,7 @@ def UpdateData(tablename, set, where):
                         newData += EachData[j] + ","
                     newData = newData[0:-1]
                     dbdata[i] = newData
-                    # UpdateLine("DB/" + tablename, i, newData)
+                    # UpdateLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, i, newData)
             else:
                 EachData[VIndex] = SetValue
                 count += 1
@@ -102,14 +102,14 @@ def UpdateData(tablename, set, where):
                     newData += EachData[j] + ","
                 newData = newData[0:-1]
                 dbdata[i] = newData
-                # UpdateLine("DB/" + tablename, i, newData)
-    WriteFileArray("DB/" + tablename, dbdata)
+                # UpdateLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, i, newData)
+    WriteFileArray(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, dbdata)
     return str(count) + " Row(s) Updated"
 
 
 def DeleteData(tablename, where):
     try:
-        dbdata = ReadFile("DB/" + tablename)
+        dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename)
     except:
         return "Error: No this table!"
     dbdata = dbdata.split("\n")
@@ -125,8 +125,8 @@ def DeleteData(tablename, where):
             if EachData[CIndex] == WhereValue:
                 count += 1
                 dbdata[i] = ""
-                # DeleteLine("DB/" + tablename, i)
-    DeleteEmptyLine("DB/" + tablename, dbdata)
+                # DeleteLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, i)
+    DeleteEmptyLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, dbdata)
     return "Deleted " + str(count) + " Row(s)"
 
 
@@ -149,26 +149,26 @@ def WriteFileArray(filename, content):
 
 
 def CreateTable(name, colunm):
-    if os.path.exists("DB/" + name):
+    if os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + name):
         return "Error: Table already existed!"
 
     else:
-        WriteFileLine("DB/" + name, colunm + "\n")
+        WriteFileLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + name, colunm + "\n")
     return "Table " + name + " Created!"
 
 
 def DropTable(name):
-    if not os.path.exists("DB/" + name):
+    if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + name):
         return "Error: Table not existed!"
 
     else:
-        os.remove("DB/" + name)
+        os.remove(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + name)
         return "Table " + name + " Droped!"
 
 
 def Insert(tablename, data):
     try:
-        dbdata = ReadFile("DB/" + tablename)
+        dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename)
     except:
         return "Error: No this table!"
     dbdata = dbdata.split("\n")
@@ -178,13 +178,13 @@ def Insert(tablename, data):
         return "Error: Length of your input VALUES and table colunms not match!"
 
     else:
-        WriteFileLine("DB/" + tablename, data[1:-1] + "\n")
+        WriteFileLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, data[1:-1] + "\n")
         return "A row Inserted"
 
 
 def Select(tablename, selectcolumn, where):
     try:
-        AllData = ReadFile("DB/" + tablename).split("\n")
+        AllData = ReadFile(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename).split("\n")
         AllData = [line for line in AllData if line.strip()] 
     except:
         return "Error: No this table!"
@@ -319,7 +319,7 @@ def SocketReceiving(incomingconn):
 
 
 if __name__ == '__main__':
-    print "Welcome To SQLike 0.0004 Alpha"
+    print "Welcome To SQLike 0.0005 Alpha"
     print "Enter \"QUIT\" or \"EXIT\" To Exit This Program"
     print "Enter \"HELP\" to show help"
     while 1:
@@ -348,7 +348,7 @@ if __name__ == '__main__':
             print "  UPDATE _table_name SET _column=_data WHERE _column=_data"
             print ""
             print "6 Delete a row:"
-            print "  DELETE _table_name WHERE _column=_data"
+            print "  DELETE FROM _table_name WHERE _column=_data"
             print ""
             print "7 Query all the data with all columns:"
             print "  SELECT * FROM _table_name"
