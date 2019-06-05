@@ -68,6 +68,7 @@ def UpdateData(tablename, set, where):
     except:
         return "Error: No this table!"
     dbdata = dbdata.split("\n")
+    dbdata = [line for line in dbdata if line.strip()] 
     SetColumn = set.split("=")[0]
     SetValue = set.split("=")[1]
     VIndex = FindColumnIndex(SetColumn, dbdata[0].split(","))
@@ -184,6 +185,7 @@ def Insert(tablename, data):
 def Select(tablename, selectcolumn, where):
     try:
         AllData = ReadFile("DB/" + tablename).split("\n")
+        AllData = [line for line in AllData if line.strip()] 
     except:
         return "Error: No this table!"
     Columns = AllData[0].split(",")
@@ -191,15 +193,15 @@ def Select(tablename, selectcolumn, where):
     if not selectcolumn[0] == "*":
         for i in range(len(Columns)):
             if Columns[i] in selectcolumn:
-                ReturnDatas += Columns[i] + " "
+                ReturnDatas += Columns[i] + "\t"
     else:
         for i in range(len(Columns)):
-            ReturnDatas += Columns[i] + " "
+            ReturnDatas += Columns[i] + "	"
     ReturnDatas += "\n"
     for i in range(1, len(AllData)):
         if selectcolumn == "*":
             if where == 0:
-                ReturnDatas += AllData[i].replace(",", " ") + "\n"
+                ReturnDatas += AllData[i].replace(",", "\t") + "\n"
             else:
                 WhereColumn = where.split("=")[0]
                 WhereValue = where.split("=")[1]
@@ -210,13 +212,13 @@ def Select(tablename, selectcolumn, where):
                 EachData = AllData[i].split(",")
                 if len(EachData) == len(AllData[0].split(",")):
                     if EachData[CIndex] == WhereValue:
-                        ReturnDatas += AllData[i].replace(",", " ") + "\n"
+                        ReturnDatas += AllData[i].replace(",", "\t") + "\n"
         else:
             SingleLineData = AllData[i].split(",")
             if where == 0:
                 for j in range(len(SingleLineData)):
                     if Columns[j] in selectcolumn:
-                        ReturnDatas += SingleLineData[j] + " "
+                        ReturnDatas += SingleLineData[j] + "\t"
                 ReturnDatas += "\n"
             else:
                 WhereColumn = where.split("=")[0]
@@ -230,7 +232,7 @@ def Select(tablename, selectcolumn, where):
                     if EachData[CIndex] == WhereValue:
                         for j in range(len(SingleLineData)):
                             if Columns[j] in selectcolumn:
-                                ReturnDatas += SingleLineData[j] + " "
+                                ReturnDatas += SingleLineData[j] + "\t"
                         ReturnDatas += "\n"
     return ReturnDatas
 
@@ -317,7 +319,7 @@ def SocketReceiving(incomingconn):
 
 
 if __name__ == '__main__':
-    print "Welcome To SQLike 0.0003 Alpha"
+    print "Welcome To SQLike 0.0004 Alpha"
     print "Enter \"QUIT\" or \"EXIT\" To Exit This Program"
     print "Enter \"HELP\" to show help"
     while 1:
@@ -354,11 +356,11 @@ if __name__ == '__main__':
             print "8 Query some data with all columns with a special condition:"
             print "  SELECT * FROM _table_name WHERE _column=_data"
             print ""
-            print "9 Query all the data only with special single column:"
-            print "  SELECT _column=_data FROM _table_name"
+            print "9 Query all the data only with special column(s):"
+            print "  SELECT _column1,_column2 FROM _table_name"
             print ""
             print "10 Query some data only with special single column with a special condition:"
-            print "  SELECT _column=_data FROM _table_name WHERE _column=_data"
+            print "  SELECT _column1,_column2 FROM _table_name WHERE _column=_data"
             print ""
             print "11 Start TCP Socket Server"
             print "  server BindIP:PORT"
