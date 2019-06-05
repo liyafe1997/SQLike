@@ -65,10 +65,15 @@ SELECT * FROM _table_name WHERE _column=_data
 SELECT _column1,_column2 FROM _table_name
 
 
-带条件检索某列所有数据(Query some data only with special single column with a special condition)：
+带条件检索某列所有数据 (Query some data only with special single column with a special condition)：
 
 SELECT _column1,_column2 FROM _table_name WHERE _column=_data
 
-开启TCP服务器(Start TCP Socket Server)
+开启TCP Socket服务器(Start TCP Socket Server)
 
 server BindIP:PORT (Example: server 127.0.0.1:1234)
+
+该TCP Socket服务器会响应客户端发来的SQL语句，返回结果，返回的结果与在SQLike终端中响应的一样（如Select请求返回的结果用换行符（\n）分割每一行即每条数据，包含表头；用TAB符（\t）分割列），自行试一下就知道了。
+
+(This TCP Socket Server will response the SQL command sent from clients, the response as same as the SQL command result in the SQLike terminal. For example, The response of SELECT command is split by new line symbol (\n) for each line (include header), and by Tab symbol (\t) for each colunm. You can try yourself.)
+
