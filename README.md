@@ -62,12 +62,12 @@ SELECT * FROM _table_name WHERE _column=_data
 
 不带条件，只检索某列所有数据 (Query all the data only with special single column)：
 
-SELECT _column=_data FROM _table_name
+SELECT _column1,_column2 FROM _table_name
 
 
 带条件检索某列所有数据(Query some data only with special single column with a special condition)：
 
-SELECT _column=_data FROM _table_name WHERE _column=_data
+SELECT _column1,_column2 FROM _table_name WHERE _column=_data
 
 开启TCP服务器(Start TCP Socket Server)
 
