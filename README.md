@@ -3,6 +3,10 @@
  
  一个用Python写的，基于平面文件（CSV）的，命令有点仿SQL的“数据库”。
 
+It doesn't need any third-part library, all modules used are python default environment built-in modules.
+
+甚至没有使用任何第三方的库，所有用到的模块都是Python默认环境下自带的模块。
+
 But it has a little differece with CSV, the first line is the colunm header, instead of data.
 
 与CSV有一点不同的事，第一行不是数据，而是列头。
