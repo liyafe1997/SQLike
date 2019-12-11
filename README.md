@@ -81,7 +81,7 @@ Create table:
 
 Delete a table:
 
-**DROP TABLE _table_name
+**DROP TABLE _table_name**
 
 Insert a row:
 
