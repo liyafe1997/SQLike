@@ -3,7 +3,7 @@ import codecs
 import os
 import socket
 import threading
-
+import sys
 lock = threading.Lock()
 
 
@@ -290,6 +290,7 @@ def StartSocketServer(IP, port):
     sthread = threading.Thread(target=SocketBind, args=(server, ))
     sthread.setDaemon(True)
     sthread.start()
+    print("TCP Socket Server Started !")
     print("Bind at " + IP + ":" + str(port))
 
 
@@ -321,6 +322,10 @@ if __name__ == '__main__':
     print("Welcome To SQLike 0.0006 Alpha")
     print("Enter \"QUIT\" or \"EXIT\" To Exit This Program")
     print("Enter \"HELP\" to show help")
+    
+    if(len(sys.argv) ==4):
+        if (sys.argv[1]=="server"):
+                StartSocketServer(sys.argv[2], int(sys.argv[3]))
     while 1:
         cmd = input("SQLike>>> ")
         cmd = str(cmd)
@@ -369,7 +374,6 @@ if __name__ == '__main__':
             if len(cmd.split(" ")) == 2:
                 if len(cmd.split(" ")[1].split(":")) == 2:
                     StartSocketServer(cmd.split(" ")[1].split(":")[0], int(cmd.split(" ")[1].split(":")[1]))
-                    print("TCP Socket Server Started !")
                 else:
                     print("SQLike Command Format Error!")
             else:
