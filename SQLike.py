@@ -64,11 +64,11 @@ def Command(cmd):
 
 def UpdateData(tablename, set, where):
     try:
-        dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename)
+        dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename)
     except:
         return "Error: No this table!"
     dbdata = dbdata.split("\n")
-    dbdata = [line for line in dbdata if line.strip()] 
+    dbdata = [line for line in dbdata if line.strip()]
     SetColumn = set.split("=")[0]
     SetValue = set.split("=")[1]
     VIndex = FindColumnIndex(SetColumn, dbdata[0].split(","))
@@ -103,13 +103,13 @@ def UpdateData(tablename, set, where):
                 newData = newData[0:-1]
                 dbdata[i] = newData
                 # UpdateLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, i, newData)
-    WriteFileArray(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, dbdata)
+    WriteFileArray(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename, dbdata)
     return str(count) + " Row(s) Updated"
 
 
 def DeleteData(tablename, where):
     try:
-        dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename)
+        dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename)
     except:
         return "Error: No this table!"
     dbdata = dbdata.split("\n")
@@ -126,9 +126,8 @@ def DeleteData(tablename, where):
                 count += 1
                 dbdata[i] = ""
                 # DeleteLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, i)
-    DeleteEmptyLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, dbdata)
+    DeleteEmptyLine(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename, dbdata)
     return "Deleted " + str(count) + " Row(s)"
-
 
 
 def DeleteEmptyLine(filename, content):
@@ -149,26 +148,26 @@ def WriteFileArray(filename, content):
 
 
 def CreateTable(name, colunm):
-    if os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + name):
+    if os.path.exists(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + name):
         return "Error: Table already existed!"
 
     else:
-        WriteFileLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + name, colunm + "\n")
+        WriteFileLine(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + name, colunm + "\n")
     return "Table " + name + " Created!"
 
 
 def DropTable(name):
-    if not os.path.exists(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + name):
+    if not os.path.exists(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + name):
         return "Error: Table not existed!"
 
     else:
-        os.remove(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + name)
+        os.remove(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + name)
         return "Table " + name + " Droped!"
 
 
 def Insert(tablename, data):
     try:
-        dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename)
+        dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename)
     except:
         return "Error: No this table!"
     dbdata = dbdata.split("\n")
@@ -178,14 +177,14 @@ def Insert(tablename, data):
         return "Error: Length of your input VALUES and table colunms not match!"
 
     else:
-        WriteFileLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, data[1:-1] + "\n")
+        WriteFileLine(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename, data[1:-1] + "\n")
         return "A row Inserted"
 
 
 def Select(tablename, selectcolumn, where):
     try:
-        AllData = ReadFile(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename).split("\n")
-        AllData = [line for line in AllData if line.strip()] 
+        AllData = ReadFile(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename).split("\n")
+        AllData = [line for line in AllData if line.strip()]
     except:
         return "Error: No this table!"
     Columns = AllData[0].split(",")
@@ -288,17 +287,17 @@ def StartSocketServer(IP, port):
     ip_port = (IP, port)
     server.bind(ip_port)
     server.listen(5)
-    sthread = threading.Thread(target=SocketBind, args=(server,))
+    sthread = threading.Thread(target=SocketBind, args=(server, ))
     sthread.setDaemon(True)
     sthread.start()
-    print "Bind at " + IP + ":" + str(port)
+    print("Bind at " + IP + ":" + str(port))
 
 
 def SocketBind(ss):
     while True:
         conn, addr = ss.accept()
         latestconn = conn
-        recvsthread = threading.Thread(target=SocketReceiving, args=(conn,))
+        recvsthread = threading.Thread(target=SocketReceiving, args=(conn, ))
         recvsthread.setDaemon(True)
         recvsthread.start()
 
@@ -319,58 +318,58 @@ def SocketReceiving(incomingconn):
 
 
 if __name__ == '__main__':
-    print "Welcome To SQLike 0.0005 Alpha"
-    print "Enter \"QUIT\" or \"EXIT\" To Exit This Program"
-    print "Enter \"HELP\" to show help"
+    print("Welcome To SQLike 0.0005 Alpha")
+    print("Enter \"QUIT\" or \"EXIT\" To Exit This Program")
+    print("Enter \"HELP\" to show help")
     while 1:
-        cmd = raw_input("SQLike>>> ")
+        cmd = input("SQLike>>> ")
         cmd = str(cmd)
         if cmd.lower() == "quit" or cmd.lower() == "exit":
             exit(0)
         elif cmd == "":
             pass
         elif cmd.lower() == "help":
-            print "Command Usage:"
-            print ""
-            print "1 Create table:"
-            print "  CREATE TABLE _table_name (_column1,_column2,_column3....)"
-            print ""
-            print "2 Delete a table:"
-            print "  DROP TABLE _table_name"
-            print ""
-            print "3 Insert a row:"
-            print "  INSERT INTO _table_name VALUES (_data1,data2,_data3....)"
-            print ""
-            print "4 Update data without condition, means update all the data in the column:"
-            print "  UPDATE _table_name SET _column=_data"
-            print ""
-            print "5 Update data with condition:"
-            print "  UPDATE _table_name SET _column=_data WHERE _column=_data"
-            print ""
-            print "6 Delete a row:"
-            print "  DELETE FROM _table_name WHERE _column=_data"
-            print ""
-            print "7 Query all the data with all columns:"
-            print "  SELECT * FROM _table_name"
-            print ""
-            print "8 Query some data with all columns with a special condition:"
-            print "  SELECT * FROM _table_name WHERE _column=_data"
-            print ""
-            print "9 Query all the data only with special column(s):"
-            print "  SELECT _column1,_column2 FROM _table_name"
-            print ""
-            print "10 Query some data only with special single column with a special condition:"
-            print "  SELECT _column1,_column2 FROM _table_name WHERE _column=_data"
-            print ""
-            print "11 Start TCP Socket Server"
-            print "  server BindIP:PORT"
-            print "  Example: server 0.0.0.0:1666"
-            print ""
+            print("Command Usage:")
+            print("")
+            print("1 Create table:")
+            print("  CREATE TABLE _table_name (_column1,_column2,_column3....)")
+            print("")
+            print("2 Delete a table:")
+            print("  DROP TABLE _table_name")
+            print("")
+            print("3 Insert a row:")
+            print("  INSERT INTO _table_name VALUES (_data1,data2,_data3....)")
+            print("")
+            print("4 Update data without condition, means update all the data in the column:")
+            print("  UPDATE _table_name SET _column=_data")
+            print("")
+            print("5 Update data with condition:")
+            print("  UPDATE _table_name SET _column=_data WHERE _column=_data")
+            print("")
+            print("6 Delete a row:")
+            print("  DELETE FROM _table_name WHERE _column=_data")
+            print("")
+            print("7 Query all the data with all columns:")
+            print("  SELECT * FROM _table_name")
+            print("")
+            print("8 Query some data with all columns with a special condition:")
+            print("  SELECT * FROM _table_name WHERE _column=_data")
+            print("")
+            print("9 Query all the data only with special column(s):")
+            print("  SELECT _column1,_column2 FROM _table_name")
+            print("")
+            print("10 Query some data only with special single column with a special condition:")
+            print("  SELECT _column1,_column2 FROM _table_name WHERE _column=_data")
+            print("")
+            print("11 Start TCP Socket Server")
+            print("  server BindIP:PORT")
+            print("  Example: server 0.0.0.0:1666")
+            print("")
         elif cmd.split(" ")[0].lower() == "server":
             if len(cmd.split(" ")) == 2:
                 if len(cmd.split(" ")[1].split(":")) == 2:
                     StartSocketServer(cmd.split(" ")[1].split(":")[0], int(cmd.split(" ")[1].split(":")[1]))
-                    print "TCP Socket Server Started !"
+                    print("TCP Socket Server Started !")
                 else:
                     print("SQLike Command Format Error!")
             else:
@@ -382,5 +381,5 @@ if __name__ == '__main__':
                 if cmdResult == -1:
                     print("SQLike Command Format Error!")
                 else:
-                    print cmdResult
+                    print(cmdResult)
                 lock.release()
