@@ -318,7 +318,7 @@ def SocketReceiving(incomingconn):
 
 
 if __name__ == '__main__':
-    print("Welcome To SQLike 0.0005 Alpha")
+    print("Welcome To SQLike 0.0006 Alpha")
     print("Enter \"QUIT\" or \"EXIT\" To Exit This Program")
     print("Enter \"HELP\" to show help")
     while 1:
