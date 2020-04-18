@@ -61,6 +61,8 @@ Command Usage:
 
 该TCP Socket服务器会响应客户端发来的SQL语句，返回结果，返回的结果与在SQLike终端中响应的一样（如Select请求返回的结果用换行符（\n）分割每一行即每条数据，包含表头；用TAB符（\t）分割列），自行试一下就知道了。
 
+**也可直接通过参数启动Socket服务器: python SQLike.py server BindIP PORT (Example: python SQLike.py server 127.0.0.1 1234)
+
 ## English 
 
  A simple "Database" based on flat CSV files and commands like "SQL", written by Python.
@@ -121,3 +123,4 @@ Start TCP Socket Server:
 
 **This TCP Socket Server will response the SQL command sent from clients, the response as same as the SQL command result in the SQLike terminal. For example, The response of SELECT command is split by new line symbol (\n) for each line (include header), and by Tab symbol (\t) for each colunm. You can try yourself.**
 
+**You also can start socket server by using command arugments: python SQLike.py server BindIP PORT (Example: python SQLike.py server 127.0.0.1 1234)
