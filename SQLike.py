@@ -249,7 +249,7 @@ def ReadFile(filename):
         all_the_text = file_object.read()
     finally:
         file_object.close()
-    return all_the_text.decode("utf-8")
+    return all_the_text
 
 
 def WriteFile(filename, content):
