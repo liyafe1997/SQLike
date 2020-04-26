@@ -314,8 +314,7 @@ def SocketReceiving(incomingconn):
         while True:
             data = incomingconn.recv(1024)
             if lock.acquire():
-                commandstr = data.encode('utf-8')
-                result = Command(commandstr.decode('utf-8'))
+                result = Command(data.decode('utf-8'))
                 lock.release()
             if result == -1:
                 incomingconn.send("SQLike Command Format Error!".encode('utf-8'))
