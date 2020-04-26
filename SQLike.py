@@ -314,12 +314,13 @@ def SocketReceiving(incomingconn):
         while True:
             data = incomingconn.recv(1024)
             if lock.acquire():
-                result = Command(str(data))
+                commandstr = data.encode('utf-8')
+                result = Command(commandstr.decode('utf-8'))
                 lock.release()
             if result == -1:
-                incomingconn.send("SQLike Command Format Error!")
+                incomingconn.send("SQLike Command Format Error!".encode('utf-8'))
             else:
-                incomingconn.send(str(result))
+                incomingconn.send(str(result).encode('utf-8'))
     except:
         pass
 
@@ -328,7 +329,7 @@ if __name__ == '__main__':
     if (sys.version_info.major < 3):
         print("!!!WARNING!!! Please use Python3 to run SQLike. No longer support Python2 anymore!")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    print("Welcome To SQLike 0.0007 Alpha")
+    print("Welcome To SQLike 0.0008 Alpha")
     print("Enter \"QUIT\" or \"EXIT\" To Exit This Program")
     print("Enter \"HELP\" to show help")
 
