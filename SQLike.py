@@ -1,9 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import codecs
 import os
 import socket
 import threading
 import sys
+
+try:
+    import readline  #for support input history
+except:
+    pass  #readline not available
+
 lock = threading.Lock()
 
 
@@ -319,13 +325,16 @@ def SocketReceiving(incomingconn):
 
 
 if __name__ == '__main__':
-    print("Welcome To SQLike 0.0006 Alpha")
+    if (sys.version_info.major < 3):
+        print("!!!WARNING!!! Please use Python3 to run SQLike. No longer support Python2 anymore!")
+        print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print("Welcome To SQLike 0.0007 Alpha")
     print("Enter \"QUIT\" or \"EXIT\" To Exit This Program")
     print("Enter \"HELP\" to show help")
-    
-    if(len(sys.argv) ==4):
-        if (sys.argv[1]=="server"):
-                StartSocketServer(sys.argv[2], int(sys.argv[3]))
+
+    if (len(sys.argv) == 4):
+        if (sys.argv[1] == "server"):
+            StartSocketServer(sys.argv[2], int(sys.argv[3]))
     while 1:
         cmd = input("SQLike>>> ")
         cmd = str(cmd)
