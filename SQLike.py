@@ -4,7 +4,7 @@ import os
 import socket
 import threading
 import sys
-
+import signal
 try:
     import readline  #for support input history
 except:
@@ -141,7 +141,7 @@ def DeleteEmptyLine(filename, content):
     file_object = codecs.open(filename, 'a', "utf-8")
     for i in range(len(content)):
         if content[i] != "":
-            file_object.write(unicode(content[i]) + "\n")
+            file_object.write(content[i] + "\n")
     file_object.close()
 
 
@@ -149,7 +149,7 @@ def WriteFileArray(filename, content):
     WriteFile(filename, "")
     file_object = codecs.open(filename, 'a', "utf-8")
     for i in range(len(content)):
-        file_object.write(unicode(content[i]) + "\n")
+        file_object.write(content[i] + "\n")
     file_object.close()
 
 
@@ -269,7 +269,7 @@ def WriteFile(filename, content):
         except:
             pass
     file_object = codecs.open(filename, 'w', "utf-8")
-    file_object.write(unicode(content))
+    file_object.write(content)
     file_object.close()
 
 
@@ -289,7 +289,7 @@ def WriteFileLine(filename, content):
 
 
 def StartSocketServer(IP, port):
-    server = socket.socket()
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     ip_port = (IP, port)
     server.bind(ip_port)
     server.listen(5)
@@ -323,12 +323,12 @@ def SocketReceiving(incomingconn):
     except:
         pass
 
-
 if __name__ == '__main__':
+
     if (sys.version_info.major < 3):
         print("!!!WARNING!!! Please use Python3 to run SQLike. No longer support Python2 anymore!")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    print("Welcome To SQLike 0.0008 Alpha")
+    print("Welcome To SQLike 0.0009 Alpha")
     print("Enter \"QUIT\" or \"EXIT\" To Exit This Program")
     print("Enter \"HELP\" to show help")
 
