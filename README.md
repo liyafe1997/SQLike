@@ -55,6 +55,15 @@ Command Usage:
 
 **SELECT _column1,_column2 FROM _table_name WHERE _column=_data**
 
+检索并排序数据（仅需在SELECT命令的结尾添加ORDER BY _column） 例：
+
+**SELECT _column1,_column2 FROM _table_name WHERE _column=_data ORDER BY _column1**
+
+注：ORDER BY的数据必须为数字
+
+降序检索数据（仅需在ORDER BY _column后加DESC） 例：
+**SELECT * FROM _table_name ORDER BY _column1 DESC**
+
 开启TCP Socket服务器 (Start TCP Socket Server)
 
 **server BindIP:PORT (Example: server 127.0.0.1:1234)**
@@ -116,6 +125,16 @@ Query all the data only with special single column:
 Query some data only with special single column with a special condition:
 
 **SELECT _column1,_column2 FROM _table_name WHERE _column=_data**
+
+Query data and sort (Just add ORDER BY at the end of all kind of SELECT command) eg:
+
+**SELECT _column1,_column2 FROM _table_name WHERE _column=_data ORDER BY _column1**
+
+Note: ORDER BY must be a number
+
+Sort in descending order (Just add DESC after ORDER BY _column) eg:
+
+**SELECT * FROM _table_name ORDER BY _column1 DESC**
 
 Start TCP Socket Server:
 

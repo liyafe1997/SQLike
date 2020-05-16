@@ -411,7 +411,7 @@ if __name__ == '__main__':
             print("  SELECT _column1,_column2 FROM _table_name WHERE _column=_data ORDER BY _column1")
             print("  (Note: ORDER BY must be a number)")
             print("")
-            print("12 Sory in descending order (Just add DESC after ORDER BY _column) eg:")
+            print("12 Sort in descending order (Just add DESC after ORDER BY _column) eg:")
             print("  SELECT * FROM _table_name ORDER BY _column1 DESC")
             print("")
             print("13 Start TCP Socket Server")
