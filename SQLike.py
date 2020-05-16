@@ -43,6 +43,20 @@ def Command(cmd):
                 return Select(c[3], c[1], c[5])
             elif len(c) == 4:
                 return Select(c[3], c[1], 0)
+            elif len(c) == 9:
+                return Select(c[3], c[1], c[5], c[8])
+            elif len(c) == 7:
+                return Select(c[3], c[1], 0, c[6])
+            elif len(c) == 10:
+                DESC = False
+                if (c[9].upper() == "DESC"):
+                    DESC = True
+                return Select(c[3], c[1], c[5], c[8], DESC)
+            elif len(c) == 8:
+                DESC = False
+                if (c[7].upper() == "DESC"):
+                    DESC = True
+                return Select(c[3], c[1], 0, c[6], DESC)
             else:
                 return -1
 
@@ -187,7 +201,7 @@ def Insert(tablename, data):
         return "A row Inserted"
 
 
-def Select(tablename, selectcolumn, where):
+def Select(tablename, selectcolumn, where, orderby=None, OrderByDESC=False):
     try:
         AllData = ReadFile(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename).split("\n")
         AllData = [line for line in AllData if line.strip()]
@@ -239,6 +253,23 @@ def Select(tablename, selectcolumn, where):
                             if Columns[j] in selectcolumn:
                                 ReturnDatas += SingleLineData[j] + "\t"
                         ReturnDatas += "\n"
+    if (orderby != None):
+        Columns = ReturnDatas.split("\n")[0].split("\t")
+        OrderByColumnIndex = FindColumnIndex(orderby, Columns)
+        if (OrderByColumnIndex == -1):
+            return "Error: In ORDER BY no this column!!"
+        OrderbyData = Select(tablename, orderby, where).split("\n")[1:]  #Remove the first column line
+        OrderbyData = [line for line in OrderbyData if line.strip()]  #Remove Empty Lines
+        OtherData = ReturnDatas.split("\n")[1:]
+        orderdict = {}
+        for i in range(len(OrderbyData)):
+            try:
+                orderdict[int(OrderbyData[i].strip("\t"))] = OtherData[i]
+            except:
+                return "Error: ORDER BY must be a number!!"
+        ReturnDatas = ReturnDatas.split("\n")[0] + "\n"
+        for i in sorted(orderdict, reverse=OrderByDESC):
+            ReturnDatas += orderdict[i] + "\n"
     return ReturnDatas
 
 
@@ -323,12 +354,13 @@ def SocketReceiving(incomingconn):
     except:
         pass
 
+
 if __name__ == '__main__':
 
     if (sys.version_info.major < 3):
         print("!!!WARNING!!! Please use Python3 to run SQLike. No longer support Python2 anymore!")
         print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    print("Welcome To SQLike 0.0009 Alpha")
+    print("Welcome To SQLike 0.001 Alpha")
     print("Enter \"QUIT\" or \"EXIT\" To Exit This Program")
     print("Enter \"HELP\" to show help")
 
@@ -375,7 +407,14 @@ if __name__ == '__main__':
             print("10 Query some data only with special single column with a special condition:")
             print("  SELECT _column1,_column2 FROM _table_name WHERE _column=_data")
             print("")
-            print("11 Start TCP Socket Server")
+            print("11 Query data and sort (Just add ORDER BY at the end of all kind of SELECT command) eg:")
+            print("  SELECT _column1,_column2 FROM _table_name WHERE _column=_data ORDER BY _column1")
+            print("  (Note: ORDER BY must be a number)")
+            print("")
+            print("12 Sory in descending order (Just add DESC after ORDER BY _column) eg:")
+            print("  SELECT * FROM _table_name ORDER BY _column1 DESC")
+            print("")
+            print("13 Start TCP Socket Server")
             print("  server BindIP:PORT")
             print("  Example: server 0.0.0.0:1666")
             print("")
