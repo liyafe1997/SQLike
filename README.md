@@ -43,9 +43,9 @@ Command Usage:
 
 **SELECT * FROM _table_name**
 
-带条件检索所有列数据：
+带条件检索所有列数据（支持AND/OR多个条件）：
 
-**SELECT * FROM _table_name WHERE _column=_data**
+**SELECT * FROM _table_name WHERE _column1=_data1 AND _column2=_data2 OR _column3=_data3**
 
 不带条件，只检索某列所有数据：
 
@@ -114,9 +114,9 @@ Query all the data with all columns:
 
 **SELECT * FROM _table_name**
 
-Query some data with all columns with a special condition:
+Query some data with all columns with a special condition (Support AND/OR multi condition):
 
-**SELECT * FROM _table_name WHERE _column=_data**
+**SELECT * FROM _table_name WHERE _column1=_data1 AND _column2=_data2 OR _column3=_data3**
 
 Query all the data only with special single column:
 

@@ -37,29 +37,13 @@ def Command(cmd):
                 return -1
             return Insert(c[2], c[4])
         elif c[0].upper() == "SELECT" and c[2].upper() == "FROM":
-            if len(c) == 6:
-                if not len(c[5].split("=")) == 2:
-                    return -1
-                return Select(c[3], c[1], c[5])
+            if len(c) > 4:
+                #                if not len(c[5].split("=")) == 2:
+                #                    return -1
+                #                return Select(c[3], c[1], c[5])
+                return Select(c[3], c[1], c[4:])
             elif len(c) == 4:
                 return Select(c[3], c[1], 0)
-            elif len(c) == 9:
-                return Select(c[3], c[1], c[5], c[8])
-            elif len(c) == 7:
-                return Select(c[3], c[1], 0, c[6])
-            elif len(c) == 10:
-                DESC = False
-                if (c[9].upper() == "DESC"):
-                    DESC = True
-                return Select(c[3], c[1], c[5], c[8], DESC)
-            elif len(c) == 8:
-                DESC = False
-                if (c[7].upper() == "DESC"):
-                    DESC = True
-                return Select(c[3], c[1], 0, c[6], DESC)
-            else:
-                return -1
-
         elif c[0].upper() == "DELETE" and c[1].upper() == "FROM" and c[3].upper() == "WHERE":
             if not len(c) == 5:
                 return -1
@@ -69,11 +53,11 @@ def Command(cmd):
         elif c[0].upper() == "UPDATE" and c[2].upper() == "SET":
             if not len(c[3].split("=")) == 2:
                 return -1
-            if len(c) == 6:
+            if len(c) > 5:
                 if not len(c[5].split("=")) == 2:
                     return -1
-                return UpdateData(c[1], c[3], c[5])
-            else:
+                return UpdateData(c[1], c[3], c[4:])
+            elif len(c) == 4:
                 return UpdateData(c[1], c[3], 0)
 
         else:
@@ -82,12 +66,26 @@ def Command(cmd):
         return -1
 
 
-def UpdateData(tablename, set, where):
+def UpdateData(tablename, set, wherelist):
+    WhereConditionList = []
+    WhereLogic = []
+    #Process Where List
+    if (wherelist != 0):
+        for i in range(len(wherelist)):
+            if ("=" in wherelist[i]):
+                WhereConditionList.append(wherelist[i])
+                if (i + 1 < len(wherelist)):
+                    WhereLogic.append(wherelist[i + 1].upper())
+                else:
+                    WhereLogic.append("END")
+    #--Process Where List
     try:
         dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename)
     except:
         return "Error: No this table!"
     dbdata = dbdata.split("\n")
+    dbdata = [line for line in dbdata if line.strip()]
+    Columns = dbdata[0].split(",")
     dbdata = [line for line in dbdata if line.strip()]
     SetColumn = set.split("=")[0]
     SetValue = set.split("=")[1]
@@ -98,14 +96,8 @@ def UpdateData(tablename, set, where):
     for i in range(1, len(dbdata)):
         EachData = dbdata[i].split(",")
         if len(EachData) == len(dbdata[0].split(",")):
-            if not where == 0:
-                WhereColumn = where.split("=")[0]
-                WhereValue = where.split("=")[1]
-                CIndex = FindColumnIndex(WhereColumn, dbdata[0].split(","))
-                if CIndex == -1:
-                    return "Error: In WHERE no this column!!"
-
-                if EachData[CIndex] == WhereValue:
+            if not wherelist == 0:
+                if ProcessWhereList(WhereConditionList, WhereLogic, Columns, dbdata[i]):
                     count += 1
                     EachData[VIndex] = SetValue
                     newData = ""
@@ -201,7 +193,34 @@ def Insert(tablename, data):
         return "A row Inserted"
 
 
-def Select(tablename, selectcolumn, where, orderby=None, OrderByDESC=False):
+def Select(tablename, selectcolumn, wherelist):
+    WhereConditionList = []
+    WhereLogic = []
+    orderby = None
+    OrderByDESC = False
+    #Process Where List
+    if (wherelist != 0):
+        for i in range(len(wherelist)):
+            if ("=" in wherelist[i]):
+                WhereConditionList.append(wherelist[i])
+                if (i + 1 < len(wherelist)):
+                    WhereLogic.append(wherelist[i + 1].upper())
+                else:
+                    WhereLogic.append("END")
+            elif (wherelist[i].upper() == "ORDER"):
+                wherelist[i] = "ORDER"  #Make it captial, easy to process in the end of this function(process orderby)
+                try:
+                    if (wherelist[i + 1].upper() == "BY"):
+                        wherelist[i + 1] = "BY"  #same as upper
+                        orderby = wherelist[i + 2]
+                    else:
+                        return -1
+                except:
+                    return -1  #SQL Command Format Error(wherelist out of range)
+            elif (wherelist[i].upper() == "DESC"):
+                OrderByDESC = True
+    #--Process Where List
+
     try:
         AllData = ReadFile(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename).split("\n")
         AllData = [line for line in AllData if line.strip()]
@@ -219,46 +238,34 @@ def Select(tablename, selectcolumn, where, orderby=None, OrderByDESC=False):
     ReturnDatas += "\n"
     for i in range(1, len(AllData)):
         if selectcolumn == "*":
-            if where == 0:
+            if wherelist == 0:
                 ReturnDatas += AllData[i].replace(",", "\t") + "\n"
             else:
-                WhereColumn = where.split("=")[0]
-                WhereValue = where.split("=")[1]
-                CIndex = FindColumnIndex(WhereColumn, Columns)
-                if CIndex == -1:
-                    return "Error: In WHERE no this column!!"
+                if ProcessWhereList(WhereConditionList, WhereLogic, Columns, AllData[i]):
+                    ReturnDatas += AllData[i].replace(",", "\t") + "\n"
 
-                EachData = AllData[i].split(",")
-                if len(EachData) == len(AllData[0].split(",")):
-                    if EachData[CIndex] == WhereValue:
-                        ReturnDatas += AllData[i].replace(",", "\t") + "\n"
         else:
             SingleLineData = AllData[i].split(",")
-            if where == 0:
+            if wherelist == 0:
                 for j in range(len(SingleLineData)):
                     if Columns[j] in selectcolumn:
                         ReturnDatas += SingleLineData[j] + "\t"
                 ReturnDatas += "\n"
             else:
-                WhereColumn = where.split("=")[0]
-                WhereValue = where.split("=")[1]
-                CIndex = FindColumnIndex(WhereColumn, Columns)
-                if CIndex == -1:
-                    return "Error: In WHERE no this column!!"
+                if ProcessWhereList(WhereConditionList, WhereLogic, Columns, AllData[i]):
+                    for j in range(len(SingleLineData)):
+                        if Columns[j] in selectcolumn:
+                            ReturnDatas += SingleLineData[j] + "\t"
+                    ReturnDatas += "\n"
 
-                EachData = AllData[i].split(",")
-                if len(EachData) == len(AllData[0].split(",")):
-                    if EachData[CIndex] == WhereValue:
-                        for j in range(len(SingleLineData)):
-                            if Columns[j] in selectcolumn:
-                                ReturnDatas += SingleLineData[j] + "\t"
-                        ReturnDatas += "\n"
     if (orderby != None):
         Columns = ReturnDatas.split("\n")[0].split("\t")
         OrderByColumnIndex = FindColumnIndex(orderby, Columns)
         if (OrderByColumnIndex == -1):
             return "Error: In ORDER BY no this column!!"
-        OrderbyData = Select(tablename, orderby, where).split("\n")[1:]  #Remove the first column line
+        wherelist = [line for line in wherelist if line.strip("ORDER")]
+        wherelist = [line for line in wherelist if line.strip("BY")]
+        OrderbyData = Select(tablename, orderby, wherelist).split("\n")[1:]  #Remove the first column line
         OrderbyData = [line for line in OrderbyData if line.strip()]  #Remove Empty Lines
         OtherData = ReturnDatas.split("\n")[1:]
         orderdict = {}
@@ -271,6 +278,47 @@ def Select(tablename, selectcolumn, where, orderby=None, OrderByDESC=False):
         for i in sorted(orderdict, reverse=OrderByDESC):
             ReturnDatas += orderdict[i] + "\n"
     return ReturnDatas
+
+
+def ProcessWhereList(WhereConditionList, WhereLogic, Columns, AllDataSingleLine):
+    LegelList = []
+    CIndexList = []
+    for j in range(len(WhereConditionList)):
+        WhereColumn = WhereConditionList[j].split("=")[0]
+        WhereValue = WhereConditionList[j].split("=")[1]
+        CIndex = FindColumnIndex(WhereColumn, Columns)
+        if CIndex == -1:
+            return "Error: In WHERE no this column!!"
+        CIndexList.append(CIndex)
+
+    EachData = AllDataSingleLine.split(",")
+    if len(EachData) == len(Columns):
+        #Build Legel List
+        for k in range(len(WhereConditionList)):
+            WhereColumn = WhereConditionList[k].split("=")[0]
+            WhereValue = WhereConditionList[k].split("=")[1]
+            if EachData[CIndexList[k]] == WhereValue:
+                LegelList.append(True)
+            else:
+                LegelList.append(False)
+        #--Build Legel List
+        #Compute Legel List
+        LastBool = False
+        if (WhereLogic[0] == "AND"):
+            LastBool = LegelList[0] and LegelList[1]
+        elif (WhereLogic[0] == "OR"):
+            LastBool = LegelList[0] or LegelList[1]
+        elif (WhereLogic[0] == "END"):
+            LastBool = LegelList[0]
+        for k in range(len(LegelList)):
+            if k <= 1:
+                continue
+            if (WhereLogic[k - 1] == "AND"):
+                LastBool = LastBool and LegelList[k]
+            elif (WhereLogic[k - 1] == "OR"):
+                LastBool = LastBool or LegelList[k]
+        #--Compute Legel List
+        return LastBool
 
 
 def FindColumnIndex(column, columns):
