@@ -62,6 +62,7 @@ Command Usage:
 注：ORDER BY的数据必须为数字
 
 降序检索数据（仅需在ORDER BY _column后加DESC） 例：
+
 **SELECT * FROM _table_name ORDER BY _column1 DESC**
 
 开启TCP Socket服务器 (Start TCP Socket Server)
