@@ -45,11 +45,7 @@ def Command(cmd):
             elif len(c) == 4:
                 return Select(c[3], c[1], 0)
         elif c[0].upper() == "DELETE" and c[1].upper() == "FROM" and c[3].upper() == "WHERE":
-            if not len(c) == 5:
-                return -1
-            if not len(c[4].split("=")) == 2:
-                return -1
-            return DeleteData(c[2], c[4])
+            return DeleteData(c[2], c[4:])
         elif c[0].upper() == "UPDATE" and c[2].upper() == "SET":
             if not len(c[3].split("=")) == 2:
                 return -1
@@ -86,7 +82,6 @@ def UpdateData(tablename, set, wherelist):
     dbdata = dbdata.split("\n")
     dbdata = [line for line in dbdata if line.strip()]
     Columns = dbdata[0].split(",")
-    dbdata = [line for line in dbdata if line.strip()]
     SetColumn = set.split("=")[0]
     SetValue = set.split("=")[1]
     VIndex = FindColumnIndex(SetColumn, dbdata[0].split(","))
@@ -97,7 +92,10 @@ def UpdateData(tablename, set, wherelist):
         EachData = dbdata[i].split(",")
         if len(EachData) == len(dbdata[0].split(",")):
             if not wherelist == 0:
-                if ProcessWhereList(WhereConditionList, WhereLogic, Columns, dbdata[i]):
+                whereresult = ProcessWhereList(WhereConditionList, WhereLogic, Columns, dbdata[i])
+                if (not (type(whereresult) is bool)):
+                    return whereresult
+                if whereresult:
                     count += 1
                     EachData[VIndex] = SetValue
                     newData = ""
@@ -119,25 +117,35 @@ def UpdateData(tablename, set, wherelist):
     return str(count) + " Row(s) Updated"
 
 
-def DeleteData(tablename, where):
+def DeleteData(tablename, wherelist):
+    WhereConditionList = []
+    WhereLogic = []
+    #Process Where List
+    if (wherelist != 0):
+        for i in range(len(wherelist)):
+            if ("=" in wherelist[i]):
+                WhereConditionList.append(wherelist[i])
+                if (i + 1 < len(wherelist)):
+                    WhereLogic.append(wherelist[i + 1].upper())
+                else:
+                    WhereLogic.append("END")
+    #--Process Where List
     try:
         dbdata = ReadFile(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename)
     except:
         return "Error: No this table!"
     dbdata = dbdata.split("\n")
-    WhereColumn = where.split("=")[0]
-    WhereValue = where.split("=")[1]
-    CIndex = FindColumnIndex(WhereColumn, dbdata[0].split(","))
-    if CIndex == -1:
-        return "Error: In WHERE no this column!!"
+    dbdata = [line for line in dbdata if line.strip()]
     count = 0
+    Columns = dbdata[0].split(",")
     for i in range(len(dbdata)):
-        EachData = dbdata[i].split(",")
-        if len(EachData) == len(dbdata[0].split(",")):
-            if EachData[CIndex] == WhereValue:
-                count += 1
-                dbdata[i] = ""
-                # DeleteLine(os.path.split(os.path.abspath(__file__))[0]+"/DB/" + tablename, i)
+        whereresult = ProcessWhereList(WhereConditionList, WhereLogic, Columns, dbdata[i])
+        if (not (type(whereresult) is bool)):
+            return whereresult
+        if whereresult:
+            count += 1
+            dbdata[i] = ""
+
     DeleteEmptyLine(os.path.split(os.path.abspath(__file__))[0] + "/DB/" + tablename, dbdata)
     return "Deleted " + str(count) + " Row(s)"
 
@@ -241,7 +249,10 @@ def Select(tablename, selectcolumn, wherelist):
             if wherelist == 0:
                 ReturnDatas += AllData[i].replace(",", "\t") + "\n"
             else:
-                if ProcessWhereList(WhereConditionList, WhereLogic, Columns, AllData[i]):
+                whereresult = ProcessWhereList(WhereConditionList, WhereLogic, Columns, AllData[i])
+                if (not (type(whereresult) is bool)):
+                    return whereresult
+                if whereresult:
                     ReturnDatas += AllData[i].replace(",", "\t") + "\n"
 
         else:
