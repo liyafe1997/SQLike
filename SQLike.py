@@ -91,7 +91,7 @@ def UpdateData(tablename, set, wherelist):
     for i in range(1, len(dbdata)):
         EachData = dbdata[i].split(",")
         if len(EachData) == len(dbdata[0].split(",")):
-            if not wherelist == 0:
+            if not len(WhereLogic) == 0:
                 whereresult = ProcessWhereList(WhereConditionList, WhereLogic, Columns, dbdata[i])
                 if (not (type(whereresult) is bool)):
                     return whereresult
@@ -246,7 +246,7 @@ def Select(tablename, selectcolumn, wherelist):
     ReturnDatas += "\n"
     for i in range(1, len(AllData)):
         if selectcolumn == "*":
-            if wherelist == 0:
+            if len(WhereLogic) == 0:
                 ReturnDatas += AllData[i].replace(",", "\t") + "\n"
             else:
                 whereresult = ProcessWhereList(WhereConditionList, WhereLogic, Columns, AllData[i])
@@ -257,7 +257,7 @@ def Select(tablename, selectcolumn, wherelist):
 
         else:
             SingleLineData = AllData[i].split(",")
-            if wherelist == 0:
+            if len(WhereLogic) == 0:
                 for j in range(len(SingleLineData)):
                     if Columns[j] in selectcolumn:
                         ReturnDatas += SingleLineData[j] + "\t"
